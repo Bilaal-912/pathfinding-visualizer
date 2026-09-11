@@ -37,7 +37,10 @@ private:
 };
 
 // ---- everything below is OUTSIDE the Grid class ----
-
+struct SearchResult {
+    vector<pair<int,int>> visitedOrder;
+    vector<pair<int,int>> path;
+};
 pair<int,int> findCell(Grid& grid, int target) {
     for (int r = 0; r < grid.getRows(); r++) {
         for (int c = 0; c < grid.getCols(); c++) {
@@ -49,7 +52,7 @@ pair<int,int> findCell(Grid& grid, int target) {
     return {-1, -1};
 }
 
-vector<pair<int,int>> bfs(Grid& grid) {
+SearchResult bfs(Grid& grid) {
     pair<int,int> start = findCell(grid, 2);
     pair<int,int> end = findCell(grid, 3);
 
@@ -93,14 +96,10 @@ vector<pair<int,int>> bfs(Grid& grid) {
     }
     reverse(path.begin(), path.end());
 
-    // print path for now (we'll return both later)
-    cout << "Shortest path: ";
-    for (auto& p : path) {
-        cout << "(" << p.first << "," << p.second << ") ";
-    }
-    cout << endl;
-
-    return visitedOrder;
+    SearchResult result;
+    result.visitedOrder = visitedOrder;
+    result.path = path;
+    return result;
 }
 
 int main() {
@@ -110,10 +109,17 @@ int main() {
     grid.setCell(2, 2, 1); // wall
 
     grid.print();
-    cout << endl << "BFS visited order:" << endl;
 
-    vector<pair<int,int>> order = bfs(grid);
-    for (auto& p : order) {
+    SearchResult result = bfs(grid);
+
+    cout << endl << "BFS visited order:" << endl;
+    for (auto& p : result.visitedOrder) {
+        cout << "(" << p.first << "," << p.second << ") ";
+    }
+    cout << endl;
+
+    cout << "Shortest path:" << endl;
+    for (auto& p : result.path) {
         cout << "(" << p.first << "," << p.second << ") ";
     }
     cout << endl;
