@@ -2,6 +2,7 @@
 #include <vector>
 #include <queue>
 #include <utility>
+#include <stack>
 #include<algorithm>
 using namespace std;
 
@@ -102,6 +103,55 @@ SearchResult bfs(Grid& grid) {
     return result;
 }
 
+SearchResult dfs(Grid& grid) {
+    pair<int,int> start = findCell(grid, 2);
+    pair<int,int> end = findCell(grid, 3);
+
+    vector<pair<int,int>> visitedOrder;
+    vector<vector<bool>> visited(grid.getRows(), vector<bool>(grid.getCols(), false));
+    vector<vector<pair<int,int>>> parent(grid.getRows(), vector<pair<int,int>>(grid.getCols(), {-1,-1}));
+    stack<pair<int,int>> s;
+
+    s.push(start);
+    visited[start.first][start.second] = true;
+
+    int dr[] = {-1, 1, 0, 0};
+    int dc[] = {0, 0, -1, 1};
+
+    while (!s.empty()) {
+        pair<int,int> current = s.top();
+        s.pop();
+        visitedOrder.push_back(current);
+
+        if (current == end) break;
+
+        for (int i = 0; i < 4; i++) {
+            int nr = current.first + dr[i];
+            int nc = current.second + dc[i];
+
+            if (nr >= 0 && nr < grid.getRows() && nc >= 0 && nc < grid.getCols()
+                && !visited[nr][nc] && !grid.isWall(nr, nc)) {
+                visited[nr][nc] = true;
+                parent[nr][nc] = current;
+                s.push({nr, nc});
+            }
+        }
+    }
+
+    vector<pair<int,int>> path;
+    pair<int,int> step = end;
+    while (step != make_pair(-1,-1)) {
+        path.push_back(step);
+        step = parent[step.first][step.second];
+    }
+    reverse(path.begin(), path.end());
+
+    SearchResult result;
+    result.visitedOrder = visitedOrder;
+    result.path = path;
+    return result;
+}
+
 int main() {
     Grid grid(5, 5);
     grid.setCell(0, 0, 2); // start
@@ -123,6 +173,18 @@ int main() {
         cout << "(" << p.first << "," << p.second << ") ";
     }
     cout << endl;
+    SearchResult dfsResult = dfs(grid);
 
+cout << endl << "DFS visited order:" << endl;
+for (auto& p : dfsResult.visitedOrder) {
+    cout << "(" << p.first << "," << p.second << ") ";
+}
+cout << endl;
+
+cout << "DFS path:" << endl;
+for (auto& p : dfsResult.path) {
+    cout << "(" << p.first << "," << p.second << ") ";
+}
+cout << endl;
     return 0;
 }
