@@ -2,6 +2,7 @@
 #include <vector>
 #include <queue>
 #include <utility>
+#include<algorithm>
 using namespace std;
 
 class Grid {
@@ -54,6 +55,7 @@ vector<pair<int,int>> bfs(Grid& grid) {
 
     vector<pair<int,int>> visitedOrder;
     vector<vector<bool>> visited(grid.getRows(), vector<bool>(grid.getCols(), false));
+    vector<vector<pair<int,int>>> parent(grid.getRows(), vector<pair<int,int>>(grid.getCols(), {-1,-1}));
     queue<pair<int,int>> q;
 
     q.push(start);
@@ -76,10 +78,27 @@ vector<pair<int,int>> bfs(Grid& grid) {
             if (nr >= 0 && nr < grid.getRows() && nc >= 0 && nc < grid.getCols()
                 && !visited[nr][nc] && !grid.isWall(nr, nc)) {
                 visited[nr][nc] = true;
+                parent[nr][nc] = current;
                 q.push({nr, nc});
             }
         }
     }
+
+    // reconstruct path by walking backwards from end
+    vector<pair<int,int>> path;
+    pair<int,int> step = end;
+    while (step != make_pair(-1,-1)) {
+        path.push_back(step);
+        step = parent[step.first][step.second];
+    }
+    reverse(path.begin(), path.end());
+
+    // print path for now (we'll return both later)
+    cout << "Shortest path: ";
+    for (auto& p : path) {
+        cout << "(" << p.first << "," << p.second << ") ";
+    }
+    cout << endl;
 
     return visitedOrder;
 }
