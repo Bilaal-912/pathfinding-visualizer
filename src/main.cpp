@@ -4,6 +4,7 @@
 #include <utility>
 #include <stack>
 #include<algorithm>
+#include <climits>
 using namespace std;
 
 class Grid {
@@ -160,7 +161,65 @@ SearchResult dfs(Grid& grid) {
     result.path = path;
     return result;
 }
+SearchResult dijkstra(Grid& grid) {
+    pair<int,int> start = findCell(grid, 2);
+    pair<int,int> end = findCell(grid, 3);
 
+    vector<pair<int,int>> visitedOrder;
+    vector<vector<int>> dist(grid.getRows(), vector<int>(grid.getCols(), INT_MAX));
+    vector<vector<pair<int,int>>> parent(grid.getRows(), vector<pair<int,int>>(grid.getCols(), {-1,-1}));
+    vector<vector<bool>> visited(grid.getRows(), vector<bool>(grid.getCols(), false));
+
+    // min-heap of (distance, {row, col})
+    priority_queue<pair<int,pair<int,int>>, vector<pair<int,pair<int,int>>>, greater<>> pq;
+
+    dist[start.first][start.second] = 0;
+    pq.push({0, start});
+
+    int dr[] = {-1, 1, 0, 0};
+    int dc[] = {0, 0, -1, 1};
+
+    while (!pq.empty()) {
+        pair<int,pair<int,int>> top = pq.top();
+        pq.pop();
+        int d = top.first;
+        pair<int,int> current = top.second;
+
+        if (visited[current.first][current.second]) continue;
+        visited[current.first][current.second] = true;
+        visitedOrder.push_back(current);
+
+        if (current == end) break;
+
+        for (int i = 0; i < 4; i++) {
+            int nr = current.first + dr[i];
+            int nc = current.second + dc[i];
+
+            if (nr >= 0 && nr < grid.getRows() && nc >= 0 && nc < grid.getCols()
+                && !grid.isWall(nr, nc)) {
+                int newDist = d + grid.getWeight(nr, nc);
+                if (newDist < dist[nr][nc]) {
+                    dist[nr][nc] = newDist;
+                    parent[nr][nc] = current;
+                    pq.push({newDist, {nr, nc}});
+                }
+            }
+        }
+    }
+
+    vector<pair<int,int>> path;
+    pair<int,int> step = end;
+    while (step != make_pair(-1,-1)) {
+        path.push_back(step);
+        step = parent[step.first][step.second];
+    }
+    reverse(path.begin(), path.end());
+
+    SearchResult result;
+    result.visitedOrder = visitedOrder;
+    result.path = path;
+    return result;
+}
 int main() {
     Grid grid(5, 5);
     grid.setCell(0, 0, 2); // start
@@ -197,5 +256,18 @@ for (auto& p : dfsResult.path) {
 cout << endl;
 grid.setWeight(3, 3, 5); // expensive cell
 cout << "Weight at (3,3): " << grid.getWeight(3, 3) << endl;
+    SearchResult dijkstraResult = dijkstra(grid);
+
+cout << endl << "Dijkstra visited order:" << endl;
+for (auto& p : dijkstraResult.visitedOrder) {
+    cout << "(" << p.first << "," << p.second << ") ";
+}
+cout << endl;
+
+cout << "Dijkstra path:" << endl;
+for (auto& p : dijkstraResult.path) {
+    cout << "(" << p.first << "," << p.second << ") ";
+}
+cout << endl;
     return 0;
 }
