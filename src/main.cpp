@@ -10,6 +10,7 @@ class Grid {
 public:
     Grid(int rows, int cols) : rows(rows), cols(cols) {
         cells = vector<vector<int>>(rows, vector<int>(cols, 0));
+        weights = vector<vector<int>>(rows, vector<int>(cols, 1)); // default weight 1
     }
 
     void print() {
@@ -26,6 +27,13 @@ public:
     void setCell(int r, int c, int value) {
         cells[r][c] = value;
     }
+    void setWeight(int r, int c, int w) {
+        weights[r][c] = w;
+    }
+
+    int getWeight(int r, int c) {
+        return weights[r][c];
+    }
     bool isWall(int r, int c) {
         return cells[r][c] == 1;
     }
@@ -35,6 +43,7 @@ public:
 private:
     int rows, cols;
     vector<vector<int>> cells;
+    vector<vector<int>> weights;
 };
 
 // ---- everything below is OUTSIDE the Grid class ----
@@ -186,5 +195,7 @@ for (auto& p : dfsResult.path) {
     cout << "(" << p.first << "," << p.second << ") ";
 }
 cout << endl;
+grid.setWeight(3, 3, 5); // expensive cell
+cout << "Weight at (3,3): " << grid.getWeight(3, 3) << endl;
     return 0;
 }
