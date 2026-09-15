@@ -1,0 +1,49 @@
+body {
+    font-family: sans-serif;
+    text-align: center;
+    background: #1e1e1e;
+    color: white;
+}
+
+#grid {
+    display: grid;
+    grid-template-columns: repeat(25, 24px);
+    grid-template-rows: repeat(15, 24px);
+    gap: 1px;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+.cell {
+    background: #2b2b2b;
+    border: 1px solid #444;
+}
+.cell.start {
+    background: #2ecc71;
+}
+
+.cell.end {
+    background: #e74c3c;
+}
+
+.cell.wall {
+    background: #111;
+}
+#controls {
+    margin: 15px 0;
+}
+
+#controls select, #controls button {
+    padding: 6px 12px;
+    margin: 0 5px;
+    font-size: 14px;
+}
+.cell.visited {
+    background: #3498db;
+    transition: background 0.2s;
+}
+
+.cell.path {
+    background: #f1c40f;
+    transition: background 0.2s;
+}
